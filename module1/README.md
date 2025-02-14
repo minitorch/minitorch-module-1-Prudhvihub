@@ -21,4 +21,4 @@ The implementation successfully trains on multiple datasets:
 - Simple
 - XOR
 - Split
-- Diag 
+- Diag
