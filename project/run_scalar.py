@@ -2,16 +2,17 @@
 Be sure you have minitorch installed in you Virtual Env.
 >>> pip install -Ue .
 """
-import random
-
 import minitorch
+import random
 
 
 class Network(minitorch.Module):
-    def __init__(self, hidden_layers):
+    def __init__(self, hidden_layer_size):
         super().__init__()
-        # TODO: Implement for Task 1.5.
-        raise NotImplementedError("Need to implement for Task 1.5")
+        self.hidden_layer_size = hidden_layer_size
+        self.layer1 = Linear(2, hidden_layer_size)
+        self.layer2 = Linear(hidden_layer_size, hidden_layer_size)
+        self.layer3 = Linear(hidden_layer_size, 1)
 
     def forward(self, x):
         middle = [h.relu() for h in self.layer1.forward(x)]
@@ -40,8 +41,13 @@ class Linear(minitorch.Module):
             )
 
     def forward(self, inputs):
-        # TODO: Implement for Task 1.5.
-        raise NotImplementedError("Need to implement for Task 1.5")
+        final = []
+        for j in range(len(self.bias)):
+            out = self.bias[j].value
+            for i in range(len(self.weights)):
+                out += self.weights[i][j].value * inputs[i]
+            final.append(out)
+        return final
 
 
 def default_log_fn(epoch, total_loss, correct, losses):
@@ -49,9 +55,9 @@ def default_log_fn(epoch, total_loss, correct, losses):
 
 
 class ScalarTrain:
-    def __init__(self, hidden_layers):
-        self.hidden_layers = hidden_layers
-        self.model = Network(self.hidden_layers)
+    def __init__(self, hidden_layer_size):
+        self.hidden_layer_size = hidden_layer_size
+        self.model = Network(self.hidden_layer_size)
 
     def run_one(self, x):
         return self.model.forward(
@@ -61,7 +67,7 @@ class ScalarTrain:
     def train(self, data, learning_rate, max_epochs=500, log_fn=default_log_fn):
         self.learning_rate = learning_rate
         self.max_epochs = max_epochs
-        self.model = Network(self.hidden_layers)
+        self.model = Network(self.hidden_layer_size)
         optim = minitorch.SGD(self.model.parameters(), learning_rate)
 
         losses = []
@@ -103,5 +109,5 @@ if __name__ == "__main__":
     PTS = 50
     HIDDEN = 2
     RATE = 0.5
-    data = minitorch.datasets["Simple"](PTS)
+    data = minitorch.datasets["Sim"](PTS)
     ScalarTrain(HIDDEN).train(data, RATE)

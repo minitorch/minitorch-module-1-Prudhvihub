@@ -92,31 +92,34 @@ class Scalar:
         return Mul.apply(b, Inv.apply(self))
 
     def __add__(self, b: ScalarLike) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+        """Addition"""
+        return Add.apply(self, b)
 
     def __bool__(self) -> bool:
         return bool(self.data)
 
-    def __lt__(self, b: ScalarLike) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+    def __lt__(self, other):
+        """Less than function"""
+        other = self._ensure_scalar(other)
+        return ScalarFunction.apply(LT, self, other)
 
-    def __gt__(self, b: ScalarLike) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+    def __gt__(self, other):
+        """Greater than function"""
+        other = self._ensure_scalar(other)
+        return ScalarFunction.apply(LT, other, self)
 
-    def __eq__(self, b: ScalarLike) -> Scalar:  # type: ignore[override]
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+    def __eq__(self, b: ScalarLike) -> Scalar:
+        """Equality comparison"""
+        return EQ.apply(self, b)
 
-    def __sub__(self, b: ScalarLike) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+    def __sub__(self, other):
+        """Subtraction"""
+        other = self._ensure_scalar(other)
+        return ScalarFunction.apply(Add, self, -other)
 
-    def __neg__(self) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+    def __neg__(self):
+        """Negation"""
+        return ScalarFunction.apply(Neg, self)
 
     def __radd__(self, b: ScalarLike) -> Scalar:
         return self + b
@@ -125,20 +128,20 @@ class Scalar:
         return self * b
 
     def log(self) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+        """Natural logarithm"""
+        return Log.apply(self)
 
     def exp(self) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+        """Exponential function"""
+        return Exp.apply(self)
 
     def sigmoid(self) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+        """Sigmoid function"""
+        return Sigmoid.apply(self)
 
     def relu(self) -> Scalar:
-        # TODO: Implement for Task 1.2.
-        raise NotImplementedError("Need to implement for Task 1.2")
+        """ReLU function"""
+        return ReLU.apply(self)
 
     # Variable elements for backprop
 
@@ -168,13 +171,25 @@ class Scalar:
         return self.history.inputs
 
     def chain_rule(self, d_output: Any) -> Iterable[Tuple[Variable, Any]]:
+        """
+        Implements the chain rule for backpropagation.
+        
+        Args:
+            d_output: The derivative of the output with respect to this variable
+            
+        Returns:
+            List of (variable, derivative) pairs for each input variable
+        """
         h = self.history
         assert h is not None
         assert h.last_fn is not None
         assert h.ctx is not None
-
-        # TODO: Implement for Task 1.3.
-        raise NotImplementedError("Need to implement for Task 1.3")
+        
+        # Get the derivatives from the last function's backward pass
+        derivatives = h.last_fn._backward(h.ctx, d_output)
+        
+        # Pair each derivative with its corresponding input variable
+        return list(zip(h.inputs, derivatives))
 
     def backward(self, d_output: Optional[float] = None) -> None:
         """
